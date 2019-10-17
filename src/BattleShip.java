@@ -3,7 +3,8 @@ import java.util.Scanner;
 public class BattleShip {
 	
 	// This is a comment
-	
+	public static Scanner input = new Scanner(System.in);
+
 	public static final int SHIP_SYMBOL = 'S';
 	public static final int WATER_SYMBOL = 'O';
 	public static final int SUNK_SHIP_SYMBOL = 'X';
@@ -12,7 +13,10 @@ public class BattleShip {
 	public static final int NUM_SHIPS = 10;
 	public static final int DIMENSION = 8;	
 	static char[][] matrix = new char[DIMENSION][DIMENSION];
-	static boolean gameOver;
+	static boolean gameOver, win;
+	static int missingShips = NUM_SHIPS;
+	static int maxShots;
+	
 		
 	public static void main(String[] args) {
 		
@@ -23,6 +27,7 @@ public class BattleShip {
 		gameOver = false;
 	    initMatrix();
 	    addShipsToMatrix();
+	    selectDifficulty();
 	    	     
 	    while(!gameOver) {
 	    	printMatrix(true);
@@ -31,17 +36,53 @@ public class BattleShip {
 	    	System.out.println("Enter column (Number): ");
 	    	number = input.nextInt();
 	    	shoot(letter, number);
+	    	
+	    	checkGameOver();
 	    }
+	    input.close();
 	     
 	}
 	
+	private static void selectDifficulty() {
+		System.out.println("Please select difficulty (difficulty affects the number of shots you start with)"
+				+ "\n1.- Easy(30 shots)\n2.- Normal(20 shots)\n3.- Hard(12 shots)");
+		int difficulty = input.nextInt();
+
+		switch (difficulty) {
+			case 1:
+				maxShots = 30;
+				break;
+			case 2:
+				maxShots = 20;
+				break;
+			case 3:
+				maxShots = 12;
+				break;
+			default:
+				selectDifficulty();
+				break;
+		}
+	}
+
+	private static void checkGameOver() {
+		if(missingShips < NUM_SHIPS) {
+			gameOver = true;
+			win = true;
+		} else if(maxShots <= 0) {
+			gameOver = true;
+		}
+		
+	}
+
 	private static void shoot(char letter, int number) {
 		
 		int row = letter - 'A';
 		int col = number - 1;
+		maxShots--;
 		
 		if (matrix[row][col] == SHIP_SYMBOL) {
 			matrix[row][col] = SUNK_SHIP_SYMBOL;
+			missingShips --;
 		} else {
 			if (matrix[row][col] == EMPTY_SYMBOL) {
 				matrix[row][col] = WATER_SYMBOL;
